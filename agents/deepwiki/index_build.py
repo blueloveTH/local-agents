@@ -2,7 +2,7 @@ from agents.common.utils import msg, read_file
 from agents.common.utils import MirrorProcessor
 
 from langchain_core.prompts import ChatPromptTemplate
-from langchain.chat_models.base import BaseChatModel
+from agents.common.models import Model
 from .config import COMMON_SYSTEM_PROMPT
 
 prompt_template = ChatPromptTemplate.from_messages(
@@ -21,17 +21,12 @@ prompt_template = ChatPromptTemplate.from_messages(
     ]
 )
 
-def build_index(model: BaseChatModel, in_file: str) -> str:
+def build_index(model: Model, in_file: str) -> str:
     prompt_value = prompt_template.invoke({
         'file_path': in_file,
         'source_code': read_file(in_file),
     })
-    resp = model.stream(prompt_value.to_messages())
-    data = []
-    for chunk in resp:
-        print(chunk.content, end='', flush=True)
-        data.append(chunk.content)
-    return ''.join(data)
+    return model.stream(prompt_value.to_messages())
 
 
 class IndexBuilder(MirrorProcessor):

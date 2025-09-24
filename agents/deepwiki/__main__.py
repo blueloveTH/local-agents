@@ -1,8 +1,8 @@
-from agents.common.models import get_model
+from agents.common.models import Model
 from agents.deepwiki.index_build import IndexBuilder
 from agents.deepwiki.overview_gen import gen_overview
 
-model = get_model('ollama')
+model = Model('ollama')
 
 # builder = IndexBuilder("G:\\repos\\brogue-rpg\\backend", './tmp/backend')
 # builder()

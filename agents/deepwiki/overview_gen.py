@@ -1,6 +1,6 @@
 from agents.common.utils import msg, read_file, write_file
 from agents.common.utils import file_tree_to_markdown
-from langchain.chat_models.base import BaseChatModel
+from agents.common.models import Model
 
 from langchain_core.prompts import ChatPromptTemplate
 from .config import COMMON_SYSTEM_PROMPT
@@ -38,7 +38,7 @@ prompt_template = ChatPromptTemplate.from_messages(
     ]
 )
 
-def gen_overview(model: BaseChatModel, index_root: str):
+def gen_overview(model: Model, index_root: str):
     md, files = file_tree_to_markdown(index_root, lambda x: x[:-3] if x.endswith('.md') else x)
     prompt_value = prompt_template.invoke({
         'file_tree': md,
@@ -47,11 +47,5 @@ def gen_overview(model: BaseChatModel, index_root: str):
             for file in files
         ),
     })
-    write_file('./tmp/prompt.md', prompt_value.to_string())
-    resp = model.stream(prompt_value.to_messages())
-    data = []
-    for chunk in resp:
-        print(chunk.content, end='', flush=True)
-        data.append(chunk.content)
-    return ''.join(data)
-
+    write_file('./tmp/overview_gen_prompt.md', prompt_value.to_string())
+    return model.stream(prompt_value.to_messages())
