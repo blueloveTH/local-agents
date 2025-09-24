@@ -1,5 +1,5 @@
 import os
-from typing import Literal
+from typing import Literal, Callable
 
 def msg(role: Literal['system', 'user', 'ai'], content: str | list[str]):
     if isinstance(content, str):
@@ -40,3 +40,30 @@ class MirrorProcessor:
 
     def process(self, src_path) -> str | None:
         raise NotImplementedError
+
+
+def file_tree_to_markdown(root_path: str, f_process: Callable[[str], str] | None = None) -> tuple[str, list[str]]:
+    f_process = f_process or (lambda x: x)
+    files = []
+    def _directory_to_markdown(path, indent=0):
+        lines = []
+        prefix = '  ' * indent
+        for entry in sorted(os.listdir(path)):
+            full_path = os.path.join(path, entry)
+            entry = f_process(entry)
+            if os.path.isdir(full_path):
+                lines.append(f"{prefix}- `{entry}/`")
+                lines.extend(_directory_to_markdown(full_path, indent + 1))
+            else:
+                lines.append(f"{prefix}- `{entry}`")
+                files.append(os.path.relpath(full_path, root_path))
+        return lines
+
+    root_name = os.path.basename(os.path.abspath(root_path))
+    lines = [f"- `{f_process(root_name)}/`"]
+    lines.extend(_directory_to_markdown(root_path, indent=1))
+    return (
+        '\n'.join(lines),
+        files
+    )
+
