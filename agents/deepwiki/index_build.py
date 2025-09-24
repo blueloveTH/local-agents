@@ -30,8 +30,12 @@ def build_index(model: Model, in_file: str) -> str:
 
 
 class IndexBuilder(MirrorProcessor):
+    def __init__(self, model: Model, src_dir, dst_dir):
+        self.model = model
+        super().__init__(src_dir, dst_dir)
+
     def filter(self, src_path) -> bool:
         return src_path.endswith('.py')
 
     def process(self, src_path):
-        return build_index(src_path)
+        return build_index(self.model, src_path)
