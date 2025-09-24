@@ -10,12 +10,8 @@ def remove_think_tags(text: str) -> str:
     return text.strip()
 
 class Model:
-    def __init__(self, provider: ModelProvider):
-        if provider == 'ollama':
-            self.model = init_chat_model('qwen3-coder:30b-a3b-q8_0', model_provider='ollama')
-        else:
-            assert 'OPENAI_API_KEY' in os.environ
-            self.model = init_chat_model('gemini-2.5-pro', model_provider='openai')
+    def __init__(self, model: str, model_provider: ModelProvider):
+        self.model = init_chat_model(model=model, model_provider=model_provider)
 
     def stream(self, messages):
         data: list[str] = []
