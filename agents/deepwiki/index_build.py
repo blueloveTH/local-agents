@@ -3,7 +3,7 @@ from agents.common.utils import MirrorProcessor
 
 from langchain_core.prompts import ChatPromptTemplate
 from agents.common.models import Model
-from .config import COMMON_SYSTEM_PROMPT
+from .config import COMMON_SYSTEM_PROMPT, Context
 
 prompt_template = ChatPromptTemplate.from_messages(
     [
@@ -30,9 +30,9 @@ def build_index(model: Model, in_file: str) -> str:
 
 
 class IndexBuilder(MirrorProcessor):
-    def __init__(self, model: Model, src_dir, dst_dir):
-        self.model = model
-        super().__init__(src_dir, dst_dir)
+    def __init__(self, ctx: Context):
+        self.model = ctx.model
+        super().__init__(ctx.source_dir, ctx.index_root)
 
     def filter(self, src_path) -> bool:
         return src_path.endswith('.py')

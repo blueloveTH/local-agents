@@ -4,9 +4,8 @@ from loguru import logger
 
 from agents.common.utils import msg, read_file, write_file
 from agents.common.utils import file_tree_to_markdown
-from agents.common.models import Model
 
-from .config import COMMON_SYSTEM_PROMPT
+from .config import COMMON_SYSTEM_PROMPT, Context
 from .utils import parse_overview
 
 prompt_template = ChatPromptTemplate.from_messages(
@@ -39,15 +38,13 @@ prompt_template = ChatPromptTemplate.from_messages(
     ]
 )
 
-def gen_page(model: Model, source_root: str, index_root: str):
-    overview_path = os.path.join(index_root, 'overview.md')
-    assert os.path.exists(overview_path)
-    overview = read_file(overview_path)
-    md, files = file_tree_to_markdown(index_root, lambda x: x[:-3] if x.endswith('.md') else x)
+def gen_page(ctx: Context):
+    assert os.path.exists(ctx.overview_path)
+    overview = read_file(ctx.overview_path)
+    md, files = file_tree_to_markdown(ctx.index_root, lambda x: x[:-3] if x.endswith('.md') else x)
     
-    output_dir = os.path.join(index_root, 'wiki')
-    shutil.rmtree(output_dir, ignore_errors=True)
-    os.makedirs(output_dir)
+    shutil.rmtree(ctx.wiki_root, ignore_errors=True)
+    os.makedirs(ctx.wiki_root)
 
     for page in parse_overview(overview):
         logger.info(f'开始生成页面: {page.title} ({page.filename})')
@@ -57,7 +54,7 @@ def gen_page(model: Model, source_root: str, index_root: str):
                 related_files.extend([
                     '#### ' + file,
                     '```',
-                    read_file(os.path.join(source_root, file)),
+                    read_file(os.path.join(ctx.source_dir, file)),
                     '```\n',
                 ])
             else:
@@ -70,6 +67,6 @@ def gen_page(model: Model, source_root: str, index_root: str):
             'page_toc': '\n'.join(f'  - {item}' for item in page.table_of_contents),
             'related_files': '\n'.join(related_files)
         })
-        write_file(os.path.join(index_root, 'page_gen_prompt.md'), prompt_value.to_string())
-        res = model.stream(prompt_value.to_messages())
-        write_file(os.path.join(output_dir, page.filename), res)
+        write_file(os.path.join(ctx.output_dir, 'page_gen_prompt.md'), prompt_value.to_string())
+        res = ctx.model.stream(prompt_value.to_messages())
+        write_file(os.path.join(ctx.wiki_root, page.filename), res)
