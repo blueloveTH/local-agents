@@ -1,5 +1,8 @@
 import os
 from typing import Literal, Callable
+from datetime import datetime
+
+from loguru import logger
 
 def msg(role: Literal['system', 'user', 'ai'], content: str | list[str]):
     if isinstance(content, str):
@@ -67,3 +70,14 @@ def file_tree_to_markdown(root_path: str, f_process: Callable[[str], str] | None
         files
     )
 
+class Timer:
+    def __init__(self):
+        self.start_time = datetime.now()
+
+    def record(self, title: str):
+        now = datetime.now()
+        elapsed = now - self.start_time
+        elapsed_seconds = int(elapsed.total_seconds())
+        minutes, seconds = divmod(elapsed_seconds, 60)
+        logger.info(f"{title}: {minutes}分钟{seconds}秒")
+        self.start_time = now

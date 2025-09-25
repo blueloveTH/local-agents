@@ -1,3 +1,5 @@
+import os
+
 from agents.common.utils import msg, read_file, write_file
 from agents.common.utils import file_tree_to_markdown
 from agents.common.models import Model
@@ -38,7 +40,7 @@ prompt_template = ChatPromptTemplate.from_messages(
     ]
 )
 
-def gen_overview(model: Model, index_root: str):
+def gen_overview(model: Model, source_root: str, index_root: str):
     md, files = file_tree_to_markdown(index_root, lambda x: x[:-3] if x.endswith('.md') else x)
     prompt_value = prompt_template.invoke({
         'file_tree': md,
@@ -47,5 +49,5 @@ def gen_overview(model: Model, index_root: str):
             for file in files
         ),
     })
-    write_file('./tmp/overview_gen_prompt.md', prompt_value.to_string())
+    write_file(os.path.join(index_root, 'overview_gen_prompt.md'), prompt_value.to_string())
     return model.stream(prompt_value.to_messages())
