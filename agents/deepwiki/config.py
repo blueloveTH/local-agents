@@ -12,7 +12,6 @@ class Context:
     model: Model
     source_dir: str
     output_dir: str
-    index_root: str
 
     @property
     def overview_path(self):
