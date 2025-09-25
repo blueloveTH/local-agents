@@ -50,14 +50,14 @@ def gen_page(ctx: Context):
         logger.info(f'开始生成页面: {page.title} ({page.filename})')
         related_files = []
         for file in page.related_files:
-            if file in files:
+            try:
                 related_files.extend([
                     '#### ' + file,
                     '```',
                     read_file(os.path.join(ctx.source_dir, file)),
                     '```\n',
                 ])
-            else:
+            except FileNotFoundError:
                 logger.warning(f'page {page.title} is referring a missing file: {file}')
         prompt_value = prompt_template.invoke({
             'file_tree': md,
