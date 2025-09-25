@@ -12,7 +12,7 @@ from .page_gen import gen_page
 
 arg_parser = ArgumentParser()
 arg_parser.add_argument('--output_dir', type=str, default='./tmp', help='输出目录')
-arg_parser.add_argument('--sleep_on_end', action='store_true', help='在流程结束后让Windows进入睡眠')
+arg_parser.add_argument('--sleep_on_end', action='store_false', help='在流程结束后让Windows进入睡眠')
 args = arg_parser.parse_args()
 
 timer = Timer()
