@@ -1,4 +1,3 @@
-import os
 import re
 from typing import Literal
 from langchain.chat_models import init_chat_model
@@ -18,6 +17,7 @@ class Model:
         for chunk in self.model.stream(messages):
             print(chunk.content, end='', flush=True)
             data.append(chunk.content)
+        print()
         text = ''.join(data)
         return remove_think_tags(text)
     

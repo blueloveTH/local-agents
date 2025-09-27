@@ -32,6 +32,7 @@ class MirrorProcessor:
 
                 if not self.filter(src_path):
                     continue
+                logger.info(f"processing {rel_path}:")
                 res = self.process(src_path)
                 if res is not None:
                     dst_path = dst_path + '.md'
@@ -45,7 +46,7 @@ class MirrorProcessor:
         raise NotImplementedError
 
 
-def file_tree_to_markdown(root_path: str, f_process: Callable[[str], str] | None = None) -> tuple[str, list[str]]:
+def file_tree_to_markdown(root_path: str, f_process: Callable[[str, str], str] | None = None) -> tuple[str, list[str]]:
     f_process = f_process or (lambda x: x)
     files = []
     def _directory_to_markdown(path, indent=0):
@@ -53,17 +54,24 @@ def file_tree_to_markdown(root_path: str, f_process: Callable[[str], str] | None
         prefix = '  ' * indent
         for entry in sorted(os.listdir(path)):
             full_path = os.path.join(path, entry)
-            entry = f_process(entry)
             if os.path.isdir(full_path):
-                lines.append(f"{prefix}- `{entry}/`")
+                entry += '/'
+                entry = f_process(entry, full_path)
+                lines.append(f"{prefix}- {entry}")
+                old_length = len(lines)
                 lines.extend(_directory_to_markdown(full_path, indent + 1))
+                if len(lines) == old_length:
+                    lines.pop()
             else:
-                lines.append(f"{prefix}- `{entry}`")
-                files.append(os.path.relpath(full_path, root_path))
+                entry = f_process(entry, full_path)
+                if entry:
+                    lines.append(f"{prefix}- {entry}")
+                    files.append(os.path.relpath(full_path, root_path))
         return lines
 
-    root_name = os.path.basename(os.path.abspath(root_path))
-    lines = [f"- `{f_process(root_name)}/`"]
+    root_path = os.path.abspath(root_path)
+    root_name = os.path.basename(root_path) + '/'
+    lines = [f"- {f_process(root_name, root_path)}"]
     lines.extend(_directory_to_markdown(root_path, indent=1))
     return (
         '\n'.join(lines),

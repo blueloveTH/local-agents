@@ -3,15 +3,16 @@ from agents.common.utils import MirrorProcessor
 
 from langchain_core.prompts import ChatPromptTemplate
 from agents.common.models import Model
-from .config import Context
+from .config import COMMON_SYSTEM_PROMPT, Context
 
 prompt_template = ChatPromptTemplate.from_messages(
     [
-        msg('system', [
-            '你是一个分析代码的专家，你正在协助用户执行代码索引的构建任务。',
-            '用户将会向你提供的一份源代码，你需要仔细理解代码，提取关键信息，并输出简短的文本总结代码的功能和意图。',
-            '你为代码生成的总结只能有一行，且不超过100字。',
-            '你的总结将被用于索引代码，回答用户后续的提问，因此你可以在总结中包含关键的函数、类或变量的名称，以便检索。',
+        msg('system', COMMON_SYSTEM_PROMPT + [
+            '在开始生成之前，用户会逐个向你提供代码仓库中的每一个源文件的内容，你需要从每个文件中提取关键信息，并以你认为合适的方式进行提炼和总结。',
+            '你的总结将会被用户存储下来，用于后续指导智能体下一步生成整个代码仓库的wiki的过程。',
+            '你的总结将被用于检索信息，回答用户后续的提问，因此你需要在总结中包含关键的函数、类或变量的名称和作用，以便检索。',
+            '你的总结不要复制用户的源代码，在包含关键信息的前提下，尽可能简洁（500-1000字，如果代码非常复杂，可适当增加字数）。',
+            '现在用户会向你提供第一个源文件的内容，请你开始你的工作。',
         ]),
         msg('user', [
             '文件 `{file_path}` 的内容如下:',
