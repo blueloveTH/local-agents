@@ -58,4 +58,4 @@ logger.info("DeepWiki 生成流程结束！")
 #     os.system("rundll32.exe powrprof.dll,SetSuspendState 0,1,0")
 
 
-# noita-data中的法术增强的状态是怎么实现的？例如一个魔法弹加上冰霜晶石，可以给魔法弹增加冰系伤害和减速效果。
+# noita-data中的法术增强的状态是怎么实现的？例如角色的法杖装备一个魔法弹再加上冰霜晶石，可以给魔法弹增加冰系伤害和减速效果。

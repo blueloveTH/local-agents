@@ -55,6 +55,7 @@ class Chatbot:
                         found_keys.append(key)
 
             if len(found_keys) == 1:
+                file_path = found_keys[0]
                 file_content = read_file(os.path.join(self.ctx.source_dir, file_path))
                 logger.info(f'正在将文件`{file_path}`的内容发送给AI...')
             elif len(found_keys) == 0:
