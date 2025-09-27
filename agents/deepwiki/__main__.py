@@ -22,8 +22,9 @@ timer = Timer()
 
 ctx = Context(
     # qwen3:30b-a3b-thinking-2507-q4_k_m
-    # model=Model('qwen3:4b-instruct-2507-q4_k_m', 'ollama'),
-    model=Model('gemini-2.5-pro-cheap', 'openai'),
+    # qwen3:4b-instruct-2507-q4_k_m
+    model=Model('qwen3:30b-a3b-thinking-2507-q4_k_m', 'ollama'),
+    # model=Model('gemini-2.5-pro-cheap', 'openai'),
     source_dir="G:/repos/noita-data",
     output_dir=str(args.output_dir),
 )

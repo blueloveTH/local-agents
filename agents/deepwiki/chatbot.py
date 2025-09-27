@@ -44,10 +44,24 @@ class Chatbot:
             optional_base = self.ctx.source_dir.split('/')[-1] + '/'
             if file_path.startswith(optional_base):
                 file_path = file_path[len(optional_base):]
-            try:
+
+            from pathlib import Path
+            root_path = Path(self.ctx.source_dir)
+            found_keys = []
+            for p in root_path.rglob('*'):
+                if p.is_file():
+                    key = str(p.relative_to(root_path)).replace('\\', '/')
+                    if file_path in key:
+                        found_keys.append(key)
+
+            if len(found_keys) == 1:
                 file_content = read_file(os.path.join(self.ctx.source_dir, file_path))
                 logger.info(f'正在将文件`{file_path}`的内容发送给AI...')
-            except FileNotFoundError:
-                file_content = f'文件 `{file_path}` 未找到，请检查路径是否正确。请注意，路径需要是相对于仓库根目录的全路径，而不是部分路径。'
+            elif len(found_keys) == 0:
+                file_content = f'文件`{file_path}`未找到，请检查路径是否正确。'
                 logger.warning(file_content)
+            elif len(found_keys) > 1:
+                file_content = f'文件`{file_path}`有多个匹配项，请提供更精确的路径，当前匹配到的文件有：{", ".join(found_keys)}'
+                logger.warning(file_content)
+
             self.messages.append(msg('user', f'```\n{file_content}\n```'))
